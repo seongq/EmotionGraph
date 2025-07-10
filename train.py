@@ -34,7 +34,7 @@ def get_train_valid_sampler(trainset, valid=0.1, dataset='IEMOCAP'):
 
 
 def get_MELD_loaders(batch_size=32, valid=0.1, num_workers=0, pin_memory=False):
-    trainset = MELDDataset('/content/sample_data/MELD_features_raw1.pkl')
+    trainset = MELDDataset('/content/drive/MyDrive/emotion/datasets/emo_feature_conv/MELD_features_raw1.pkl')
     train_sampler, valid_sampler = get_train_valid_sampler(trainset, valid, 'MELD')
 
     train_loader = DataLoader(trainset,
@@ -51,7 +51,7 @@ def get_MELD_loaders(batch_size=32, valid=0.1, num_workers=0, pin_memory=False):
                               num_workers=num_workers,
                               pin_memory=pin_memory)
 
-    testset = MELDDataset('/content/sample_data/MELD_features_raw1.pkl', train=False)
+    testset = MELDDataset('/content/drive/MyDrive/emotion/datasets/emo_feature_conv/MELD_features_raw1.pkl', train=False)
     test_loader = DataLoader(testset,
                              batch_size=batch_size,
                              collate_fn=testset.collate_fn,
@@ -261,7 +261,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--batch-size', type=int, default=32, metavar='BS', help='batch size')
     
-    parser.add_argument('--epochs', type=int, default=60, metavar='E', help='number of epochs')
+    parser.add_argument('--epochs', type=int, default=300, metavar='E', help='number of epochs')
     
     parser.add_argument('--class-weight', action='store_true', default=True, help='use class weights')
     

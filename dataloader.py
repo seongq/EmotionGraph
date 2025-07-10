@@ -9,10 +9,10 @@ class IEMOCAPDataset(Dataset):
     def __init__(self, train=True):
         self.videoIDs, self.videoSpeakers, self.videoLabels, self.videoText,\
         self.videoAudio, self.videoVisual, self.videoSentence, self.trainVid,\
-        self.testVid = pickle.load(open('/content/sample_data/IEMOCAP_features.pkl', 'rb'), encoding='latin1')
+        self.testVid = pickle.load(open('/content/drive/MyDrive/emotion/datasets/emo_feature_conv/IEMOCAP_features.pkl', 'rb'), encoding='latin1')
 
         _, _, self.roberta1, self.roberta2, self.roberta3, self.roberta4,\
-        _, _, _, _ = pickle.load(open('/content/sample_data/iemocap_features_roberta.pkl', 'rb'), encoding='latin1')
+        _, _, _, _ = pickle.load(open('/content/drive/MyDrive/emotion/datasets/emo_feature_conv/iemocap_features_roberta.pkl', 'rb'), encoding='latin1')
         '''
         label index mapping = {'hap':0, 'sad':1, 'neu':2, 'ang':3, 'exc':4, 'fru':5}
         '''
@@ -50,7 +50,7 @@ class MELDDataset(Dataset):
 
         _, _, _, self.roberta1, self.roberta2, self.roberta3, self.roberta4, \
             _, self.trainIds, self.testIds, self.validIds \
-            = pickle.load(open("/content/sample_data/meld_features_roberta.pkl", 'rb'), encoding='latin1')
+            = pickle.load(open("/content/drive/MyDrive/emotion/datasets/emo_feature_conv/meld_features_roberta.pkl", 'rb'), encoding='latin1')
 
         self.keys = [x for x in (self.trainVid if train else self.testVid)]
 
