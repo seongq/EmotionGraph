@@ -7,6 +7,7 @@ from torch_geometric.nn import  GraphConv
 import numpy as np, itertools, random, copy, math
 from model_GCN import GCN_2Layers, GCNLayer1, GCNII, TextCNN
 from model_hyper import HyperGCN
+from model_hgcn import HGCN
 
 def print_grad(grad):
     print('the grad is', grad[2][0:5])
@@ -541,9 +542,11 @@ class Model(nn.Module):
                  n_classes=7, listener_state=False, context_attention='simple', dropout_rec=0.5, dropout=0.5, nodal_attention=True, avec=False, 
                  no_cuda=False, graph_type='relation', use_topic=False, alpha=0.2, multiheads=6, graph_construct='direct', use_GCN=False,use_residue=True,
                  dynamic_edge_w=False,D_m_v=512,D_m_a=100,modals='avl',att_type='gated',av_using_lstm=False,Deep_GCN_nlayers = 64, dataset='IEMOCAP',
-                 use_speaker=True, use_modal=False, norm='LN2', num_L = 3, num_K = 4):
+                 use_speaker=True, use_modal=False, norm='LN2', num_L = 3, num_K = 4, kappa = 1.0, kappa_learnable=True):
         
         super(Model, self).__init__()
+        self.kappa = kappa 
+        self.kappa_learnable = kappa_learnable
 
         self.base_model = base_model
         self.avec = avec
@@ -658,9 +661,19 @@ class Model(nn.Module):
 
 
         if self.graph_type=='hyper':
+            print(D_g)
             self.graph_model = HyperGCN(a_dim=D_g, v_dim=D_g, l_dim=D_g, n_dim=D_g, nlayers=64, nhidden=graph_hidden_size, nclass=n_classes, 
                                         dropout=self.dropout, lamda=0.5, alpha=0.1, variant=True, return_feature=self.return_feature, use_residue=self.use_residue, n_speakers=n_speakers, modals=self.modals, use_speaker=self.use_speaker, use_modal=self.use_modal, num_L=num_L, num_K=num_K)
             print("construct "+self.graph_type)
+
+        elif self.graph_type=='hgcn':
+            print(D_g)
+            self.graph_model = HGCN(a_dim=D_g, v_dim=D_g, l_dim=D_g, n_dim=D_g, nlayers=64, nhidden=graph_hidden_size, nclass=n_classes, 
+                                        dropout=self.dropout, lamda=0.5, alpha=0.1, variant=True, return_feature=self.return_feature, use_residue=self.use_residue, n_speakers=n_speakers, modals=self.modals, use_speaker=self.use_speaker, use_modal=self.use_modal, num_K=num_K,
+                                        kappa = self.kappa,
+                                        kappa_learnable = self.kappa_learnable)
+            print("construct "+self.graph_type)
+           
         elif self.graph_type=='None':
             if not self.multi_modal:
                 self.graph_net = nn.Linear(2*D_e, n_classes)
@@ -695,7 +708,10 @@ class Model(nn.Module):
                 if self.use_residue:
                     self.smax_fc = nn.Linear((D_g+graph_hidden_size*2)*len(self.modals), n_classes)
                 else:
-                    self.smax_fc = nn.Linear((graph_hidden_size*2)*len(self.modals), n_classes)
+                    if self.graph_type == "hyper":
+                        self.smax_fc = nn.Linear((graph_hidden_size*2)*len(self.modals), n_classes)
+                    elif self.graph_type == "hgcn":
+                        self.smax_fc = nn.Linear((graph_hidden_size*1)*len(self.modals), n_classes)
             elif self.att_type == 'gated':
                 if len(self.modals) == 3:
                     self.smax_fc = nn.Linear(100*len(self.modals), graph_hidden_size)
@@ -867,6 +883,13 @@ class Model(nn.Module):
             emotions_feat = self.dropout_(emotions_feat)
             emotions_feat = nn.ReLU()(emotions_feat)
             log_prob = F.log_softmax(self.smax_fc(emotions_feat), 1)
+        elif self.graph_type=='hgcn':
+            emotions_feat = self.graph_model(features_a, features_v, features_l, seq_lengths, qmask, epoch)
+            emotions_feat = self.dropout_(emotions_feat)
+            emotions_feat = nn.ReLU()(emotions_feat)
+            log_prob = F.log_softmax(self.smax_fc(emotions_feat), 1)
+
+
         else:
             print("There are no such kind of graph")        
         return log_prob, edge_index, edge_norm, edge_type, edge_index_lengths

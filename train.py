@@ -12,8 +12,9 @@ from sklearn.metrics import f1_score, confusion_matrix, accuracy_score, classifi
 import pandas as pd
 import pickle as pk
 import datetime
+from utils import str2bool
 
-seed = 1475 # We use seed = 1475 on IEMOCAP and seed = 67137 on MELD
+seed = 123456 # We use seed = 1475 on IEMOCAP and seed = 67137 on MELD
 def seed_everything(seed=seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -309,6 +310,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--num_K', type=int, default=4, help='num_convs')
 
+    parser.add_argument("--kappa", type=float, default=1.0)
+    parser.add_argument("--kappa_learnable", default='false', type=str2bool)
+
+
     args = parser.parse_args()
     today = datetime.datetime.now()
     print(args)
@@ -406,7 +411,9 @@ if __name__ == '__main__':
                                  use_modal=args.use_modal,
                                  norm = args.norm,
                                  num_L = args.num_L,
-                                 num_K = args.num_K)
+                                 num_K = args.num_K,
+                                 kappa = args.kappa,
+                                 kappa_learnable = args.kappa_learnable)
 
         print ('Graph NN with', args.base_model, 'as base model.')
         name = 'Graph'
