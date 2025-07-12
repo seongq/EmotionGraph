@@ -262,7 +262,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--batch-size', type=int, default=32, metavar='BS', help='batch size')
     
-    parser.add_argument('--epochs', type=int, default=300, metavar='E', help='number of epochs')
+    parser.add_argument('--epochs', type=int, default=1000, metavar='E', help='number of epochs')
     
     parser.add_argument('--class-weight', action='store_true', default=True, help='use class weights')
     
