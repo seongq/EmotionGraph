@@ -312,7 +312,9 @@ if __name__ == '__main__':
 
     parser.add_argument("--kappa", type=float, default=1.0)
     parser.add_argument("--kappa_learnable", default='false', type=str2bool)
-    parser.add_argument("--optimizer_choice", type=str2bool, required=True, choices=('adam', 'rieman'))
+
+    
+    parser.add_argument("--optimizer_choice", type=str, required=True, choices=('adam', 'rieman'))
 
     args = parser.parse_args()
     today = datetime.datetime.now()

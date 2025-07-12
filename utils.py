@@ -1,4 +1,6 @@
 import torch
+import argparse
+
 def add_self_loops(edge_index, num_nodes):
     device = edge_index.device
     loop_index = torch.arange(0, num_nodes, dtype=torch.long, device=device)
