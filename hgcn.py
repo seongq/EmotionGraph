@@ -68,9 +68,13 @@ class HGCNBlock(nn.Module):
         # print(out.dtype)
         out.index_add_(0, col, messages)
 
+        
+        # with torch.no_grad():
+        x_h = self.manifold.projx(out.to(torch.float64))
+        x_h = self.manifold.expmap0(x_h)
         out = out.to(torch.float32)
-
-        return out
+        x_h = x_h.to(dtype=torch.float32)
+        return out, x_h
 
     # def linear_aggregate(self, x_H, edge_index, num_nodes):
     #     edge_index = add_self_loops(edge_index, num_nodes=num_nodes)

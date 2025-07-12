@@ -1,5 +1,5 @@
 import os
-
+import geoopt
 import numpy as np, argparse, time, pickle, random
 import torch
 import torch.nn as nn
@@ -262,7 +262,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--batch-size', type=int, default=32, metavar='BS', help='batch size')
     
-    parser.add_argument('--epochs', type=int, default=1000, metavar='E', help='number of epochs')
+    parser.add_argument('--epochs', type=int, default=10000, metavar='E', help='number of epochs')
     
     parser.add_argument('--class-weight', action='store_true', default=True, help='use class weights')
     
@@ -312,7 +312,7 @@ if __name__ == '__main__':
 
     parser.add_argument("--kappa", type=float, default=1.0)
     parser.add_argument("--kappa_learnable", default='false', type=str2bool)
-
+    parser.add_argument("--optimizer_choice", type=str2bool, required=True, choices=('adam', 'rieman'))
 
     args = parser.parse_args()
     today = datetime.datetime.now()
@@ -465,8 +465,19 @@ if __name__ == '__main__':
                 loss_function = nn.NLLLoss()
             else:
                 loss_function = MaskedNLLLoss()
+    if args.graph_type=="hgcn":
+        if args.optimizer_choice=="rieman":
+            optimizer = geoopt.optim.RiemannianAdam(
+    model.parameters(),   # model 안에 Euclidean + Hyperbolic 파라미터 섞여 있어도 OK
+    lr=args.lr,
+    weight_decay=args.l2
+)
+        else: 
+            optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
 
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
+        
+    else:
+        optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.l2)
 
     lr = args.lr
     
