@@ -60,9 +60,12 @@ class HGCN(nn.Module):
                 edge_index = edge_index
             x = self.fc1(features)
         else:
-            # print("evaluation")
+           # print("training")
+            if random.choice([True,False]):
+                edge_index = self.create_random_tree_index(edge_index, dia_len, self.modals)
+            else:
+                edge_index = edge_index
             x = self.fc1(features)
-            
         for kk in range(self.num_K):
             x = getattr(self, f'hgcn{kk+1}')(x, edge_index)
 
