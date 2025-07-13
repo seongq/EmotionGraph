@@ -52,20 +52,20 @@ class HGCN(nn.Module):
                 l += emb_vector[2].unsqueeze(0).expand(l.shape[0], -1)
 
         edge_index, features = self.create_gnn_index(a, v, l, dia_len, self.modals)
-        if self.training:
-            # print("training")
-            if random.choice([True,False]):
-                edge_index = self.create_random_tree_index(edge_index, dia_len, self.modals)
-            else:
-                edge_index = edge_index
-            x = self.fc1(features)
-        else:
-           # print("training")
-            if random.choice([True,False]):
-                edge_index = self.create_random_tree_index(edge_index, dia_len, self.modals)
-            else:
-                edge_index = edge_index
-            x = self.fc1(features)
+        # if self.training:
+        #     # print("training")
+        #     if random.choice([True,False]):
+        #         edge_index = self.create_random_tree_index(edge_index, dia_len, self.modals)
+        #     else:
+        #         edge_index = edge_index
+        #     x = self.fc1(features)
+        # else:
+        #    # print("training")
+        #     if random.choice([True,False]):
+        #         edge_index = self.create_random_tree_index(edge_index, dia_len, self.modals)
+        #     else:
+        #         edge_index = edge_index
+        x = self.fc1(features)
         for kk in range(self.num_K):
             x = getattr(self, f'hgcn{kk+1}')(x, edge_index)
 
